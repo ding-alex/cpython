@@ -2923,7 +2923,7 @@ class TestMove(BaseTest, unittest.TestCase):
             src = os.path.join(TESTFN, 'srcdir')
             os.mkdir(src)
             link = os.path.join(TESTFN, 'link')
-            os.symlink(src, link)
+            os.symlink(os.path.abspath(src), link)
             dst = os.path.join(link, 'dest')
             self.assertTrue(shutil._destinsrc(src, dst),
                             msg='_destinsrc() wrongly concluded that '
