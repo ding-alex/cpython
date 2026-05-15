@@ -1,0 +1,3 @@
+Resolve symlinks in :func:`shutil.move`'s internal destination-inside-source
+guard so that a symlink component in the destination can no longer bypass
+the check and cause the cross-device fallback to recurse into itself.

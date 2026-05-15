@@ -2915,6 +2915,23 @@ class TestMove(BaseTest, unittest.TestCase):
             os_helper.rmtree(TESTFN)
 
     @os_helper.skip_unless_symlink
+    def test_destinsrc_symlink_in_dst(self):
+        # gh-149835: a symlink component in dst that resolves into src
+        # must not bypass the "destination inside source" guard.
+        os.mkdir(TESTFN)
+        try:
+            src = os.path.join(TESTFN, 'srcdir')
+            os.mkdir(src)
+            link = os.path.join(TESTFN, 'link')
+            os.symlink(src, link)
+            dst = os.path.join(link, 'dest')
+            self.assertTrue(shutil._destinsrc(src, dst),
+                            msg='_destinsrc() wrongly concluded that '
+                            'dst (%s) is not in src (%s)' % (dst, src))
+        finally:
+            os_helper.rmtree(TESTFN)
+
+    @os_helper.skip_unless_symlink
     @mock_rename
     def test_move_file_symlink(self):
         dst = os.path.join(self.src_dir, 'bar')
