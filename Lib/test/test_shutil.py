@@ -2915,6 +2915,27 @@ class TestMove(BaseTest, unittest.TestCase):
             os_helper.rmtree(TESTFN)
 
     @os_helper.skip_unless_symlink
+    def test_destinsrc_symlink_bypass(self):
+        # gh-149835: a symlink component in dst could make a destination
+        # that is physically inside src look like it is outside, because
+        # _destinsrc compared paths after os.path.abspath (which does not
+        # resolve symlinks). Verify that realpath-based comparison catches
+        # this case.
+        os.mkdir(TESTFN)
+        try:
+            src = os.path.join(TESTFN, 'srcdir')
+            os.mkdir(src)
+            # link -> srcdir, so link/inside resolves inside srcdir.
+            link = os.path.join(TESTFN, 'link')
+            os.symlink(os.path.basename(src), link)
+            dst = os.path.join(link, 'inside')
+            self.assertTrue(shutil._destinsrc(src, dst),
+                            msg='_destinsrc() failed to detect that dst '
+                            '(%s) resolves inside src (%s)' % (dst, src))
+        finally:
+            os_helper.rmtree(TESTFN)
+
+    @os_helper.skip_unless_symlink
     @mock_rename
     def test_move_file_symlink(self):
         dst = os.path.join(self.src_dir, 'bar')

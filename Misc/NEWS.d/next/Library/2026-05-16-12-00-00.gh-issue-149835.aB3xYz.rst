@@ -1,0 +1,5 @@
+Fix :func:`shutil.move` so its cross-device fallback path correctly refuses
+to move a directory into itself when the destination contains a symlink
+component. :func:`!shutil._destinsrc` now uses :func:`os.path.realpath`
+instead of :func:`os.path.abspath` so the containment check is performed on
+the resolved, canonical paths.
